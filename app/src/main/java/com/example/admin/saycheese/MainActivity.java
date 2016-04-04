@@ -20,39 +20,34 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 
 public class MainActivity extends AppCompatActivity {
-    private Uri imgLocation;
-    ImageView mImageView;
+    private ImageView mImageView;
+    private Button mButton;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
+        mButton = (Button) findViewById(R.id.am_btn_camera);
+        mImageView = (ImageView) findViewById(R.id.am_imageview);
 
-
-
-        Button capture = (Button) findViewById(R.id.am_btn_camera);
-        capture.setOnClickListener(new View.OnClickListener() {
+        mButton.setOnClickListener(new View.OnClickListener() {
+            @Override
             public void onClick(View v) {
-                Intent intent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
-
-                imgLocation = Uri.fromFile(new File(Environment.getExternalStorageDirectory(), "fname_" +
-                        String.valueOf(System.currentTimeMillis()) + ".jpg"));
-
-                intent.putExtra(MediaStore.EXTRA_OUTPUT, imgLocation);
-                startActivityForResult(intent, 1);
+                Intent openCamera = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
+                if (openCamera.resolveActivity(getPackageManager()) != null) {
+                    startActivityForResult(openCamera, 1);
+                }
             }
         });
     }
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-        super.onActivityResult(requestCode, resultCode, data);
-
         if (requestCode == 1 && resultCode == RESULT_OK) {
-
-            Log.e("URI",imgLocation.toString());
-            mImageView.setImageBitmap(BitmapFactory.decodeFile(imgLocation.toString()));
+            Bundle extras = data.getExtras();
+            Bitmap bit = (Bitmap) extras.get("data");
+            mImageView.setImageBitmap(bit);
         }
     }
 }
